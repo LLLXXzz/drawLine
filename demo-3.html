@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            /* border: 1px solid red; */
+            display: block;
+        }
+    </style>
+</head>
+<!--使用canvas 依然采用连续点点的方式画直线 增加了手机触屏画线-->
+
+<body>
+    <canvas id='canvas' width="100" height="100"></canvas>
+    <script>
+        let canvas = document.getElementById("canvas");
+        canvas.width = document.documentElement.clientWidth;
+        canvas.height = document.documentElement.clientHeight;
+        let ctx = canvas.getContext("2d");
+        let painting = false;
+        ctx.fillStyle = "black";
+        ctx.strokeStyle = 'none' //边框样式
+        ctx.lineWidth = 10; //线条粗细
+        ctx.lineCap = 'round'; //如果不加这句，绘制时直线不平滑，拐弯的地方不能完全连接上，可以注释看一下
+        let last; //保存上一次的位置
+
+
+        var isTouchDevice = 'ontouchstart' in document.documentElement; //是否是触屏设备
+        // console.log(isTouchDevice);
+        if (isTouchDevice) {  //如果是触屏设备
+            canvas.ontouchmove = (e) => {
+                // console.log(e);
+                //手机可能会多个指头触摸，每个指头的x,y会存在touches这个数组里，通过上一个log可查看
+                //当前在电脑上模拟一个指头触摸屏幕，所以数组里只有一组数据
+                let x = e.touches[0].clientX;
+                let y = e.touches[0].clientY;
+                // console.log(x, y);         
+                ctx.beginPath();
+                ctx.arc(x, y, 10, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.fill();
+
+            }
+        }
+
+        canvas.onmousedown = (e) => {
+            painting = true;
+            last = [e.clientX, e.clientY] //将上一次的位置信息记录为数组格式，这里是第一次的位置信息
+        }
+        canvas.onmousemove = (e) => {
+            if (painting === true) {
+                drawLine(last[0], last[1], e.clientX, e.clientY);
+                last = [e.clientX, e.clientY]; //每次绘制完后，更新最后一次的位置信息
+            }
+            else {
+                console.log("什么都不做");
+            }
+        }
+        canvas.onmouseup = () => {
+            painting = false;
+        }
+        function drawLine(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+    </script>
+</body>
+
+</html>
